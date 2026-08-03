@@ -10,13 +10,14 @@ subroutine rhs_diff()
     double precision :: xi, phi, grad_phi, normal
     double precision :: uq(nvar), grad_uq(nvar), uhat(nvar,nsur_tot)
     double precision :: ul(nvar), ur(nvar), ql(nvar), qr(nvar)
+    double precision :: jump_u(nvar), lift_l(nvar), lift_r(nvar)
     double precision :: fvl(nvar), fvr(nvar), fvhat(nvar)
 
-    ! BR1 for the one-dimensional compressible Navier-Stokes equations.
-    ! 1) uhat = 0.5*(u- + u+) at every interface.
-    ! 2) Solve the local weak gradient equation for grad_cons.
-    ! 3) Integrate the viscous volume flux.
-    ! 4) Add the centered viscous interface flux.
+    ! One-dimensional BR1/BR2 discretization for the compressible Navier-Stokes equations.
+    ! Both schemes use the centered trace to construct the global lifted gradient used in
+    ! the volume integral. Their interface fluxes differ as follows:
+    !   diffusion = 0: BR1 uses the trace of the global lifted gradient.
+    !   diffusion = 1: BR2 uses the internal gradient plus the lift local to that interface.
 
     if (dim.ne.1) then
         write(*,*) 'ERROR: rhs_diff currently supports only dim = 1'
@@ -111,6 +112,7 @@ subroutine rhs_diff()
 
     !------------------------------------------------------------------------------------------
     ! Step 3: viscous volume contribution, -int_E d(phi_k)/dx Fv dx.
+    ! The BR2 formulation retains the global lift in this volume term, just as BR1 does.
     do i=1,nvol
         do q=1,nquad
             xi = gauss_x(q)
@@ -133,7 +135,9 @@ subroutine rhs_diff()
     enddo
 
     !------------------------------------------------------------------------------------------
-    ! Step 4: BR1 centered viscous flux, Fvhat = 0.5*(Fv- + Fv+).
+    ! Step 4: viscous interface flux.
+    ! BR1:  Fvhat = average(Fv(U, grad(U) + global lift)).
+    ! BR2:  Fvhat = average(Fv(U, grad(U) + lift local to this face)).
     do i=1,nsur_tot
         vl = con_sur_vol(1,i)
         vr = con_sur_vol(2,i)
@@ -145,9 +149,16 @@ subroutine rhs_diff()
         do k=1,ndof
             phi = poly_value(legendre(:,k),ndof,xi)
             ul(:) = ul(:) + cons(:,k,vl)*phi
-            ql(:) = ql(:) + grad_cons(1,:,k,vl)*phi
+
+            select case(diffusion)
+            case(0)
+                ql(:) = ql(:) + grad_cons(1,:,k,vl)*phi
+            case(1)
+                grad_phi = poly_value(grad_legendre(:,k),ndof-1,xi) &
+                    *inv_jcb(1,1,vl)
+                ql(:) = ql(:) + cons(:,k,vl)*grad_phi
+            end select
         enddo
-        call viscous_flux_1d(ul,ql,fvl)
 
         if (vr.gt.0) then
             xi = (sur_cen(1,i)-vol_cen(1,vr))/jcb(1,1,vr)
@@ -156,13 +167,50 @@ subroutine rhs_diff()
             do k=1,ndof
                 phi = poly_value(legendre(:,k),ndof,xi)
                 ur(:) = ur(:) + cons(:,k,vr)*phi
-                qr(:) = qr(:) + grad_cons(1,:,k,vr)*phi
+
+                select case(diffusion)
+                case(0)
+                    qr(:) = qr(:) + grad_cons(1,:,k,vr)*phi
+                case(1)
+                    grad_phi = poly_value(grad_legendre(:,k),ndof-1,xi) &
+                        *inv_jcb(1,1,vr)
+                    qr(:) = qr(:) + cons(:,k,vr)*grad_phi
+                end select
             enddo
-            call viscous_flux_1d(ur,qr,fvr)
         else
-            fvr(:) = fvl(:)
+            ur(:) = ul(:)
+            qr(:) = ql(:)
         endif
 
+        if (diffusion.eq.1 .and. vr.gt.0) then
+            ! In 1D, J(U) = (U_left-U_right)*n_left. For a basis function supported on
+            ! either adjacent element, the average test trace contributes one half.
+            ! The local lift coefficients therefore satisfy
+            !   M_e r_e,k = -0.5*phi_k(face)*J(U)*|face|.
+            jump_u(:) = (ul(:)-ur(:))*normal
+            lift_l = 0.d0
+            lift_r = 0.d0
+
+            xi = (sur_cen(1,i)-vol_cen(1,vl))/jcb(1,1,vl)
+            do k=1,ndof
+                phi = poly_value(legendre(:,k),ndof,xi)
+                lift_l(:) = lift_l(:) - 0.5d0*sur(i)*phi*phi*jump_u(:) &
+                    /(det_jcb(vl)*mass(k,k))
+            enddo
+
+            xi = (sur_cen(1,i)-vol_cen(1,vr))/jcb(1,1,vr)
+            do k=1,ndof
+                phi = poly_value(legendre(:,k),ndof,xi)
+                lift_r(:) = lift_r(:) - 0.5d0*sur(i)*phi*phi*jump_u(:) &
+                    /(det_jcb(vr)*mass(k,k))
+            enddo
+
+            ql(:) = ql(:) + lift_l(:)
+            qr(:) = qr(:) + lift_r(:)
+        endif
+
+        call viscous_flux_1d(ul,ql,fvl)
+        call viscous_flux_1d(ur,qr,fvr)
         fvhat(:) = 0.5d0*(fvl(:)+fvr(:))
 
         xi = (sur_cen(1,i)-vol_cen(1,vl))/jcb(1,1,vl)
