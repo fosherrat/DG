@@ -1,15 +1,16 @@
 #######################################################################################################################################
 Input file 2
 #######################################################################################################################################
-[order]	    [flux]     [time]     [CFL]     [t_final]     [eq]      [diffusion]
-1		    0	       0          0.5       0.25          10        0
+[order]     [flux]     [time]     [CFL]     [t_final]     [eq]      [diffusion]     [viscosity]     [Pr]
+1           0          0          0.5       0.25          21        0               1.0e-3          0.72
 #######################################################################################################################################
 -> order: solution order
 -> flux: 0(LLF)
 -> time: 0(euler explicit)
 -> CFL: CFL number
 -> t_final: final physical time
--> eq: 10(linear advection) 11(linear advection + diffusion)
-       20(euler), 21(euler + diffusion)
--> diffusion: 0(BR2)
+-> eq: 20(euler), 21(euler + viscous terms)
+-> diffusion: 0(BR1)
+-> viscosity: constant dynamic viscosity used by the 1D Navier-Stokes viscous flux
+-> Pr: Prandtl number
 #######################################################################################################################################
