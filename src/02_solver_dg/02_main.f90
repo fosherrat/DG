@@ -19,7 +19,7 @@ call read_point;            call date_and_time(timenow); write(*,*) '[Setting] r
 call read_input;            call date_and_time(timenow); write(*,*) '[Setting] read_input complete: ', timenow
 call build_basis;           call date_and_time(timenow); write(*,*) '[Flow] build_basis complete:   ', timenow
 call build_mass;            call date_and_time(timenow); write(*,*) '[Flow] build_mass complete:    ', timenow
-call build_gauss_quadrature call date_and_time(timenow); write(*,*) '[Flow] build_gauss complete:   ', timenow
+call build_gauss_quadrature; call date_and_time(timenow); write(*,*) '[Flow] build_gauss complete:   ', timenow
 call init_sin;              call date_and_time(timenow); write(*,*) '[Flow] init_sin complete:      ', timenow
 
 select case(time)
@@ -29,7 +29,7 @@ case(0)
     iter = 0
 
     do while (t_current.lt.t_final)
-        call euler_explicit(dt, t_final-t_current)
+        call euler_explicit(dt,t_final-t_current)
         if (dt.le.0.d0) then
             write(*,*) 'ERROR: non-positive dt in time loop. dt = ', dt
             stop
