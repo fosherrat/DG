@@ -134,9 +134,22 @@ CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_conv.f90.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling Fortran source to assembly CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_conv.f90.s"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/fosherrat/projects/DG/src/02_solver_dg/02_conv.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_conv.f90.s
 
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o: CMakeFiles/IFS_02_solver_dg.dir/flags.make
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o: /home/fosherrat/projects/DG/src/02_solver_dg/02_diff.f90
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/fosherrat/projects/DG/src/02_solver_dg/02_diff.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o
+
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing Fortran source to CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.i"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -E /home/fosherrat/projects/DG/src/02_solver_dg/02_diff.f90 > CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.i
+
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling Fortran source to assembly CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.s"
+	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -S /home/fosherrat/projects/DG/src/02_solver_dg/02_diff.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.s
+
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o: CMakeFiles/IFS_02_solver_dg.dir/flags.make
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o: /home/fosherrat/projects/DG/src/02_solver_dg/02_time.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/fosherrat/projects/DG/src/02_solver_dg/02_time.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o
 
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.i: cmake_force
@@ -149,7 +162,7 @@ CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.s: cmake_force
 
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o: CMakeFiles/IFS_02_solver_dg.dir/flags.make
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o: /home/fosherrat/projects/DG/src/02_solver_dg/02_deallocate.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/fosherrat/projects/DG/src/02_solver_dg/02_deallocate.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o
 
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.i: cmake_force
@@ -162,7 +175,7 @@ CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.s: cmake_forc
 
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o: CMakeFiles/IFS_02_solver_dg.dir/flags.make
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o: /home/fosherrat/projects/DG/src/02_solver_dg/02_main.f90
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building Fortran object CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o"
 	/usr/bin/f95 $(Fortran_DEFINES) $(Fortran_INCLUDES) $(Fortran_FLAGS) -c /home/fosherrat/projects/DG/src/02_solver_dg/02_main.f90 -o CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o
 
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.i: cmake_force
@@ -180,6 +193,7 @@ IFS_02_solver_dg_OBJECTS = \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_basis.f90.o" \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_init.f90.o" \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_conv.f90.o" \
+"CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o" \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o" \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o" \
 "CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o"
@@ -192,12 +206,13 @@ bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_read.f
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_basis.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_init.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_conv.f90.o
+bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_main.f90.o
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/build.make
 bin/IFS_02_solver_dg: CMakeFiles/IFS_02_solver_dg.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Linking Fortran executable bin/IFS_02_solver_dg"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/fosherrat/projects/DG/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking Fortran executable bin/IFS_02_solver_dg"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/IFS_02_solver_dg.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

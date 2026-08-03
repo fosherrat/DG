@@ -105,3 +105,43 @@ contains
     end function poly_value
 
 end subroutine init_sin
+
+
+
+
+
+subroutine init_const()
+    use m_parameter
+    use m_input
+    use m_point_dg
+    use m_flow
+
+    implicit none
+
+    integer :: i
+    double precision :: prim_const(nvar), cons_const(nvar)
+
+    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    if (.not.allocated(mass)) call build_mass()
+
+    if (allocated(prim)) deallocate(prim)
+    if (allocated(cons)) deallocate(cons)
+    allocate(prim(nvar,ndof,nvol)); prim = 0.d0
+    allocate(cons(nvar,ndof,nvol)); cons = 0.d0
+
+    prim_const(1) = 1.d0
+    prim_const(2) = 1.d0
+    prim_const(3) = 1.d0
+
+    cons_const(1) = prim_const(1)
+    cons_const(2) = prim_const(1)*prim_const(2)
+    cons_const(3) = prim_const(3)/(gamma-1.d0) &
+        + 0.5d0*prim_const(1)*prim_const(2)**2
+
+    do i=1,nvol
+        prim(:,1,i) = prim_const(:)
+        cons(:,1,i) = cons_const(:)
+    enddo
+
+end subroutine init_const

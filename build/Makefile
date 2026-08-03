@@ -358,6 +358,30 @@ src/02_solver_dg/02_deallocate.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_deallocate.f90.s
 .PHONY : src/02_solver_dg/02_deallocate.f90.s
 
+src/02_solver_dg/02_diff.o: src/02_solver_dg/02_diff.f90.o
+.PHONY : src/02_solver_dg/02_diff.o
+
+# target to build an object file
+src/02_solver_dg/02_diff.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.o
+.PHONY : src/02_solver_dg/02_diff.f90.o
+
+src/02_solver_dg/02_diff.i: src/02_solver_dg/02_diff.f90.i
+.PHONY : src/02_solver_dg/02_diff.i
+
+# target to preprocess a source file
+src/02_solver_dg/02_diff.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.i
+.PHONY : src/02_solver_dg/02_diff.f90.i
+
+src/02_solver_dg/02_diff.s: src/02_solver_dg/02_diff.f90.s
+.PHONY : src/02_solver_dg/02_diff.s
+
+# target to generate assembly for a file
+src/02_solver_dg/02_diff.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_diff.f90.s
+.PHONY : src/02_solver_dg/02_diff.f90.s
+
 src/02_solver_dg/02_init.o: src/02_solver_dg/02_init.f90.o
 .PHONY : src/02_solver_dg/02_init.o
 
@@ -515,6 +539,9 @@ help:
 	@echo "... src/02_solver_dg/02_deallocate.o"
 	@echo "... src/02_solver_dg/02_deallocate.i"
 	@echo "... src/02_solver_dg/02_deallocate.s"
+	@echo "... src/02_solver_dg/02_diff.o"
+	@echo "... src/02_solver_dg/02_diff.i"
+	@echo "... src/02_solver_dg/02_diff.s"
 	@echo "... src/02_solver_dg/02_init.o"
 	@echo "... src/02_solver_dg/02_init.i"
 	@echo "... src/02_solver_dg/02_init.s"
