@@ -34,8 +34,8 @@
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     ! input file variables
-    integer :: order, flux, time, diffusion
-    double precision :: cfl, t_final
+    integer :: order, flux, time, eq, diffusion
+    double precision :: cfl, t_final, viscosity, prandtl
     
     ! calculated variables
     integer :: ndof, nvar
@@ -72,7 +72,7 @@
     implicit none
 
     double precision, allocatable :: conv(:,:,:), diff(:,:,:)
-    double precision, allocatable :: cons(:,:,:), prim(:,:,:), grad_cons(:,:,:)
+    double precision, allocatable :: cons(:,:,:), prim(:,:,:), grad_cons(:,:,:,:)
     
     ! under is only for 1D. need to be generalized
     integer :: nquad
