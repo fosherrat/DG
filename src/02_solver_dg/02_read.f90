@@ -41,6 +41,10 @@ subroutine read_input()
         write(*,*) 'ERROR: Prandtl number must be positive. Pr = ', prandtl
         stop
     endif
+    if (diffusion.ne.0 .and. diffusion.ne.1) then
+        write(*,*) 'ERROR: diffusion must be 0 (BR1) or 1 (BR2). diffusion = ', diffusion
+        stop
+    endif
 
     select case(eq)
     case(20)
@@ -48,10 +52,6 @@ subroutine read_input()
     case(21)
         if (viscosity.le.0.d0) then
             write(*,*) 'ERROR: viscosity must be positive for eq = 21'
-            stop
-        endif
-        if (diffusion.ne.0) then
-            write(*,*) 'ERROR: only diffusion = 0 (BR1) is supported'
             stop
         endif
     case default
