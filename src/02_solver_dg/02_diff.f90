@@ -11,7 +11,7 @@ subroutine rhs_diff()
     double precision :: phi
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     ! BR1(implementation)
-    ! step1: calculate 0.5*(u+ + u-) for every interface
+    ! step1: calculate 0.5*(u+ + u-) for every interfaces
     uhat = 0.d0
     do i=1,nsur_tot
         if(con_sur_vol(2,i).eq.-1) then
