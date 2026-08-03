@@ -7,7 +7,7 @@ subroutine rhs_conv()
     implicit none
 
     integer :: i, j, k, q, vl, vr
-    double precision :: xq, xi, phi, grad_phi, normal, p
+    double precision :: xq, xi, phi, grad_phi, normal
     double precision :: uq(nvar), fq(nvar), ul(nvar), ur(nvar), fhat(nvar)
     
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -16,7 +16,7 @@ subroutine rhs_conv()
     if (allocated(conv)) deallocate(conv)
     allocate(conv(nvar,ndof,nvol)); conv = 0.d0
     
-    ! guassian quadrature integral approximation 
+    ! Gaussian quadrature integral approximation
     do i=1,nvol
         do q=1,nquad
             xq = gauss_x(q)
@@ -30,14 +30,15 @@ subroutine rhs_conv()
                 uq(:) = uq(:) + cons(:,k,i)*phi
             enddo
 
-            call flux_euler(1, uq, fq)
+            call flux_euler(1,uq,fq)
 
             do k=1,ndof
                 grad_phi = 0.d0
                 do j=1,ndof-1
                     grad_phi = grad_phi + grad_legendre(j,k)*xq**dble(j-1)
                 enddo
-                conv(:,k,i) = conv(:,k,i) + gauss_w(q)*fq(:)*grad_phi*det_jcb(i)*inv_jcb(1,1,i)
+                conv(:,k,i) = conv(:,k,i) &
+                    + gauss_w(q)*fq(:)*grad_phi*det_jcb(i)*inv_jcb(1,1,i)
             enddo
         enddo
     enddo
@@ -73,7 +74,7 @@ subroutine rhs_conv()
 
         select case(flux)
         case(0)
-            call flux_llf(ul, ur, normal, fhat)
+            call flux_llf(ul,ur,normal,fhat)
         case default
             write(*,*) 'ERROR: Unsupported flux = ', flux
             stop
@@ -106,8 +107,7 @@ end subroutine rhs_conv
 
 
 
-
-subroutine flux_euler(d, u, f)
+subroutine flux_euler(d,u,f)
     use m_parameter
     use m_input
 
@@ -117,17 +117,21 @@ subroutine flux_euler(d, u, f)
     double precision, intent(in) :: u(nvar)
     double precision, intent(out) :: f(nvar)
 
-    integer :: k
-    double precision :: vel, p
+    double precision :: rho, vel, p
 
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    ! Current implementation is one-dimensional.
+    if (d.ne.1 .or. nvar.ne.3) then
+        write(*,*) 'ERROR: flux_euler currently supports only the 1D Euler equations'
+        stop
+    endif
 
-    vel = sqrt(sum(u(2:nvar-1)**2))/u(1)
-    p = (gamma-1.d0)*(u(nvar)-0.5d0*vel)
+    rho = u(1)
+    vel = u(2)/rho
+    p = (gamma-1.d0)*(u(3)-0.5d0*rho*vel*vel)
 
-    f(1)        = u(d+1)
-    f(2:nvar-1) = u(2:nvar-2)*u(d+1)/u(1)
-    f(nvar)     = u(d+1)/u(1)*(u(nvar) + p)
+    f(1) = u(2)
+    f(2) = u(2)*vel + p
+    f(3) = vel*(u(3)+p)
 
 end subroutine flux_euler
 
@@ -135,7 +139,7 @@ end subroutine flux_euler
 
 
 
-subroutine flux_llf(ul, ur, normal, fhat)
+subroutine flux_llf(ul,ur,normal,fhat)
     use m_parameter
     use m_input
 
@@ -152,15 +156,15 @@ subroutine flux_llf(ul, ur, normal, fhat)
     fl(:) = 0.d0
     fl(1) = ul(2)
     fl(2) = ul(2)**2/ul(1) + pl
-    fl(3) = ul(2)*(ul(3) + pl)/ul(1)
+    fl(3) = ul(2)*(ul(3)+pl)/ul(1)
 
     pr = (gamma-1.d0)*(ur(3)-0.5d0*ur(2)**2/ur(1))
     fr(:) = 0.d0
     fr(1) = ur(2)
     fr(2) = ur(2)**2/ur(1) + pr
-    fr(3) = ur(2)*(ur(3) + pr)/ur(1)
+    fr(3) = ur(2)*(ur(3)+pr)/ur(1)
 
-    alpha = max(abs(ul(2)/ul(1)) + sqrt(gamma*pl/ul(1)), &
-                abs(ur(2)/ur(1)) + sqrt(gamma*pr/ur(1)))
+    alpha = max(abs(ul(2)/ul(1))+sqrt(gamma*pl/ul(1)), &
+                abs(ur(2)/ur(1))+sqrt(gamma*pr/ur(1)))
     fhat(:) = 0.5d0*(fl(:)+fr(:))*normal - 0.5d0*alpha*(ur(:)-ul(:))
 end subroutine flux_llf
