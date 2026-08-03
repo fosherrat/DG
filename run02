@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$project_root"
+
+cmake -S . -B build
+cmake --build build --target IFS_02_solver_dg
+
+exec ./build/bin/IFS_02_solver_dg "$@"

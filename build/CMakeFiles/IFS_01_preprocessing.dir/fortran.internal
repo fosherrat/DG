@@ -1,0 +1,7 @@
+# The fortran modules provided by this target.
+provides
+ m_folder.mod
+ m_input.mod
+ m_parameter.mod
+ m_point_dg.mod
+ m_point_fvm.mod

@@ -1,0 +1,63 @@
+subroutine read_input()
+    use m_folder
+    use m_input
+    use m_point_dg
+
+    implicit none
+
+    open(1,file=''//folder_input//'input02.dat',status='old')
+    read(1,*); read(1,*); read(1,*); read(1,*)
+    read(1,*) order, flux, time, cfl, t_final, diffusion
+    close(1)
+
+    if (order.lt.0) then
+        write(*,*) 'ERROR: order must be non-negative. order = ', order; stop
+    endif
+    if (t_final.lt.0.d0) then
+        write(*,*) 'ERROR: t_final must be non-negative. t_final = ', t_final; stop
+    endif
+
+    select case(dim)
+    case(1)
+        ndof = order + 1; nvar = 3
+    case default
+        write(*,*) 'ERROR: Unsupported dimension = ', dim; stop
+    end select
+
+end subroutine read_input
+
+subroutine read_point()
+    use m_folder
+    use m_point_dg
+
+    implicit none
+
+    integer :: i, id
+
+    open(2,file=''//folder_point//trim(file_point),status='old')
+
+    read(2,*) dim
+    read(2,*) nver
+    read(2,*) nsur_tot, nsur_int, nsur_b
+    read(2,*) nvol, ntri, nqua, ntet, npri, nhex
+
+    allocate(x_ver(dim,nver))
+    allocate(vol_id(nvol), vol_nv(nvol), vol(nvol), vol_cen(dim,nvol), vol_con(8,nvol))
+    allocate(jcb(dim,dim,nvol), det_jcb(nvol), inv_jcb(dim,dim,nvol))
+    allocate(sur_id(nsur_tot), sur_nv(nsur_tot), sur(nsur_tot))
+    allocate(sur_cen(dim,nsur_tot), sur_vec(dim,nsur_tot), con_sur_vol(2,nsur_tot))
+
+    do i=1,nver
+        read(2,*) id, x_ver(:,i)
+    enddo
+
+    do i=1,nvol
+        read(2,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i), det_jcb(i), jcb(:,:,i), inv_jcb(:,:,i)
+    enddo
+
+    do i=1,nsur_tot
+        read(2,*) sur_id(i), sur_nv(i), sur(i), sur_cen(:,i), sur_vec(:,i), con_sur_vol(:,i)
+    enddo
+
+    close(2)
+end subroutine read_point

@@ -1,0 +1,4 @@
+/home/fosherrat/projects/DG/build/CMakeFiles/IFS_01_preprocessing.dir
+/home/fosherrat/projects/DG/build/CMakeFiles/IFS_02_solver_dg.dir
+/home/fosherrat/projects/DG/build/CMakeFiles/edit_cache.dir
+/home/fosherrat/projects/DG/build/CMakeFiles/rebuild_cache.dir
