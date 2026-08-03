@@ -5,23 +5,67 @@ subroutine read_input()
 
     implicit none
 
+    integer :: ios
+    character(len=512) :: line
+
     open(1,file=''//folder_input//'input02.dat',status='old')
     read(1,*); read(1,*); read(1,*); read(1,*)
-    read(1,*) order, flux, time, cfl, t_final, diffusion
+    read(1,'(A)') line
     close(1)
 
+    viscosity = 0.d0
+    prandtl = 0.72d0
+    read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, viscosity, prandtl
+
+    if (ios.ne.0) then
+        read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion
+        if (ios.ne.0) then
+            write(*,*) 'ERROR: invalid data line in input02.dat'
+            stop
+        endif
+        if (eq.eq.21) then
+            write(*,*) 'ERROR: eq = 21 requires viscosity and Prandtl number'
+            stop
+        endif
+    endif
+
     if (order.lt.0) then
-        write(*,*) 'ERROR: order must be non-negative. order = ', order; stop
+        write(*,*) 'ERROR: order must be non-negative. order = ', order
+        stop
     endif
     if (t_final.lt.0.d0) then
-        write(*,*) 'ERROR: t_final must be non-negative. t_final = ', t_final; stop
+        write(*,*) 'ERROR: t_final must be non-negative. t_final = ', t_final
+        stop
     endif
+    if (prandtl.le.0.d0) then
+        write(*,*) 'ERROR: Prandtl number must be positive. Pr = ', prandtl
+        stop
+    endif
+
+    select case(eq)
+    case(20)
+        viscosity = 0.d0
+    case(21)
+        if (viscosity.le.0.d0) then
+            write(*,*) 'ERROR: viscosity must be positive for eq = 21'
+            stop
+        endif
+        if (diffusion.ne.0) then
+            write(*,*) 'ERROR: only diffusion = 0 (BR1) is supported'
+            stop
+        endif
+    case default
+        write(*,*) 'ERROR: current solver supports only eq = 20 or 21. eq = ', eq
+        stop
+    end select
 
     select case(dim)
     case(1)
-        ndof = order + 1; nvar = 3
+        ndof = order + 1
+        nvar = 3
     case default
-        write(*,*) 'ERROR: Unsupported dimension = ', dim; stop
+        write(*,*) 'ERROR: Unsupported dimension = ', dim
+        stop
     end select
 
 end subroutine read_input
@@ -52,11 +96,13 @@ subroutine read_point()
     enddo
 
     do i=1,nvol
-        read(2,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i), det_jcb(i), jcb(:,:,i), inv_jcb(:,:,i)
+        read(2,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i), &
+            det_jcb(i), jcb(:,:,i), inv_jcb(:,:,i)
     enddo
 
     do i=1,nsur_tot
-        read(2,*) sur_id(i), sur_nv(i), sur(i), sur_cen(:,i), sur_vec(:,i), con_sur_vol(:,i)
+        read(2,*) sur_id(i), sur_nv(i), sur(i), sur_cen(:,i), sur_vec(:,i), &
+            con_sur_vol(:,i)
     enddo
 
     close(2)
