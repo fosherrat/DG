@@ -15,8 +15,17 @@ subroutine read_input()
 
     viscosity = 0.d0
     prandtl = 0.72d0
-    read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, viscosity, prandtl
+    shock_capture = 0
+    av_c = 0.5d0
+    av_kappa = 1.d0
 
+    read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, &
+        viscosity, prandtl, shock_capture, av_c, av_kappa
+
+    if (ios.ne.0) then
+        read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, &
+            viscosity, prandtl
+    endif
     if (ios.ne.0) then
         read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion
         if (ios.ne.0) then
@@ -43,6 +52,22 @@ subroutine read_input()
     endif
     if (diffusion.ne.0 .and. diffusion.ne.1) then
         write(*,*) 'ERROR: diffusion must be 0 (BR1) or 1 (BR2). diffusion = ', diffusion
+        stop
+    endif
+    if (shock_capture.ne.0 .and. shock_capture.ne.1) then
+        write(*,*) 'ERROR: shock_capture must be 0 or 1. shock_capture = ', shock_capture
+        stop
+    endif
+    if (shock_capture.eq.1 .and. order.lt.1) then
+        write(*,*) 'ERROR: shock capturing requires order >= 1'
+        stop
+    endif
+    if (av_c.lt.0.d0) then
+        write(*,*) 'ERROR: av_c must be non-negative. av_c = ', av_c
+        stop
+    endif
+    if (av_kappa.le.0.d0) then
+        write(*,*) 'ERROR: av_kappa must be positive. av_kappa = ', av_kappa
         stop
     endif
 
