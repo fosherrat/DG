@@ -34,8 +34,8 @@
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     ! input file variables
-    integer :: order, flux, time, eq, diffusion
-    double precision :: cfl, t_final, viscosity, prandtl
+    integer :: order, flux, time, eq, diffusion, shock_capture
+    double precision :: cfl, t_final, viscosity, prandtl, av_c, av_kappa
     
     ! calculated variables
     integer :: ndof, nvar
@@ -73,6 +73,7 @@
 
     double precision, allocatable :: conv(:,:,:), diff(:,:,:)
     double precision, allocatable :: cons(:,:,:), prim(:,:,:), grad_cons(:,:,:,:)
+    double precision, allocatable :: shock_sensor(:), av_elem(:), av_face(:), av_end(:,:)
     
     ! under is only for 1D. need to be generalized
     integer :: nquad
