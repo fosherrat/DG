@@ -24,6 +24,7 @@ add_executable(IFS_02_solver_dg
     src/02_solver_dg/02_basis.f90
     src/02_solver_dg/02_init.f90
     src/02_solver_dg/02_conv.f90
+    src/02_solver_dg/02_shock.f90
     src/02_solver_dg/02_diff.f90
     src/02_solver_dg/02_time.f90
     src/02_solver_dg/02_deallocate.f90

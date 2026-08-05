@@ -6,21 +6,22 @@ subroutine rhs_diff()
 
     implicit none
 
-    integer :: i, j, k, q, vl, vr
-    double precision :: xi, phi, grad_phi, normal
+    integer :: i, k, q, vl, vr
+    double precision :: xi, phi, grad_phi, normal, eps_q, eps_face
     double precision :: uq(nvar), grad_uq(nvar), uhat(nvar,nsur_tot)
     double precision :: ul(nvar), ur(nvar), ql(nvar), qr(nvar)
     double precision :: jump_u(nvar), lift_l(nvar), lift_r(nvar)
     double precision :: fvl(nvar), fvr(nvar), fvhat(nvar)
 
-    ! One-dimensional BR1/BR2 discretization for the compressible Navier-Stokes equations.
-    ! Both schemes use the centered trace to construct the global lifted gradient used in
-    ! the volume integral. Their interface fluxes differ as follows:
-    !   diffusion = 0: BR1 uses the trace of the global lifted gradient.
-    !   diffusion = 1: BR2 uses the internal gradient plus the lift local to that interface.
+    ! One-dimensional BR1/BR2 discretization for the physical and artificial
+    ! viscous fluxes. Persson artificial viscosity uses the same lifted gradient.
 
     if (dim.ne.1) then
         write(*,*) 'ERROR: rhs_diff currently supports only dim = 1'
+        stop
+    endif
+    if (shock_capture.eq.1 .and. .not.allocated(av_face)) then
+        write(*,*) 'ERROR: artificial viscosity was not initialized'
         stop
     endif
 
@@ -112,7 +113,6 @@ subroutine rhs_diff()
 
     !------------------------------------------------------------------------------------------
     ! Step 3: viscous volume contribution, -int_E d(phi_k)/dx Fv dx.
-    ! The BR2 formulation retains the global lift in this volume term, just as BR1 does.
     do i=1,nvol
         do q=1,nquad
             xi = gauss_x(q)
@@ -125,7 +125,11 @@ subroutine rhs_diff()
                 grad_uq(:) = grad_uq(:) + grad_cons(1,:,k,i)*phi
             enddo
 
-            call viscous_flux_1d(uq,grad_uq,fvl)
+            eps_q = 0.d0
+            if (shock_capture.eq.1) then
+                eps_q = 0.5d0*((1.d0-xi)*av_end(1,i) + (1.d0+xi)*av_end(2,i))
+            endif
+            call viscous_flux_1d(uq,grad_uq,eps_q,fvl)
 
             do k=1,ndof
                 grad_phi = poly_value(grad_legendre(:,k),ndof-1,xi)
@@ -183,10 +187,6 @@ subroutine rhs_diff()
         endif
 
         if (diffusion.eq.1 .and. vr.gt.0) then
-            ! In 1D, J(U) = (U_left-U_right)*n_left. For a basis function supported on
-            ! either adjacent element, the average test trace contributes one half.
-            ! The local lift coefficients therefore satisfy
-            !   M_e r_e,k = -0.5*phi_k(face)*J(U)*|face|.
             jump_u(:) = (ul(:)-ur(:))*normal
             lift_l = 0.d0
             lift_r = 0.d0
@@ -209,8 +209,10 @@ subroutine rhs_diff()
             qr(:) = qr(:) + lift_r(:)
         endif
 
-        call viscous_flux_1d(ul,ql,fvl)
-        call viscous_flux_1d(ur,qr,fvr)
+        eps_face = 0.d0
+        if (shock_capture.eq.1) eps_face = av_face(i)
+        call viscous_flux_1d(ul,ql,eps_face,fvl)
+        call viscous_flux_1d(ur,qr,eps_face,fvr)
         fvhat(:) = 0.5d0*(fvl(:)+fvr(:))
 
         xi = (sur_cen(1,i)-vol_cen(1,vl))/jcb(1,1,vl)
@@ -230,11 +232,16 @@ subroutine rhs_diff()
 
 contains
 
-    subroutine viscous_flux_1d(u,grad_u,fv)
-        double precision, intent(in) :: u(nvar), grad_u(nvar)
+    subroutine viscous_flux_1d(u,grad_u,eps_av,fv)
+        double precision, intent(in) :: u(nvar), grad_u(nvar), eps_av
         double precision, intent(out) :: fv(nvar)
 
         double precision :: rho, vel, etot, grad_vel, grad_eint, tau
+
+        ! Persson artificial viscosity applies a scalar Laplacian to every
+        ! conservative equation: F_av = eps_av*grad(U).
+        fv(:) = eps_av*grad_u(:)
+        if (eq.ne.21) return
 
         rho = u(1)
         if (rho.le.0.d0) then
@@ -250,9 +257,8 @@ contains
         ! Stokes hypothesis in a one-dimensional flow: tau_xx = 4/3*mu*du/dx.
         tau = (4.d0/3.d0)*viscosity*grad_vel
 
-        fv(1) = 0.d0
-        fv(2) = tau
-        fv(3) = vel*tau + viscosity*gamma*grad_eint/prandtl
+        fv(2) = fv(2) + tau
+        fv(3) = fv(3) + vel*tau + viscosity*gamma*grad_eint/prandtl
     end subroutine viscous_flux_1d
 
     double precision function poly_value(coef,ncoef,x)

@@ -1,8 +1,8 @@
 #######################################################################################################################################
 Input file 2
 #######################################################################################################################################
-[order]     [flux]     [time]     [CFL]     [t_final]     [eq]      [diffusion]     [viscosity]     [Pr]
-3           0          0          0.5       0.25          21        1               1.0e-3          0.72
+[order]     [flux]     [time]     [CFL]     [t_final]     [eq]      [diffusion]     [viscosity]     [Pr]     [shock_capture]     [av_c]     [av_kappa]
+3           0          0          0.5       0.25          21        1               1.0e-3          0.72     1                   0.5        1.0
 #######################################################################################################################################
 -> order: solution order
 -> flux: 0(LLF)
@@ -10,7 +10,10 @@ Input file 2
 -> CFL: CFL number
 -> t_final: final physical time
 -> eq: 20(euler), 21(euler + viscous terms)
--> diffusion: 0(BR1), 1(BR2)
+-> diffusion: 0(BR1), 1(BR2), also used for the artificial-viscosity gradient
 -> viscosity: constant dynamic viscosity used by the 1D Navier-Stokes viscous flux
 -> Pr: Prandtl number
+-> shock_capture: 0(off), 1(Persson density sensor + C0 artificial viscosity)
+-> av_c: maximum viscosity coefficient, eps_max = av_c*(h/p)*(abs(u)+c)
+-> av_kappa: half-width of the smooth activation interval in log10(sensor)
 #######################################################################################################################################
