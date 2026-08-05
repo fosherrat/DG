@@ -17,12 +17,12 @@ subroutine euler_explicit(dt, dt_limit)
         call compute_time_step(dt, dt_limit)
 
         call rhs_conv()
-        if (eq.eq.21) call rhs_diff()
+        if (eq.eq.21 .or. shock_capture.eq.1) call rhs_diff()
 
         do i=1,nvol
             do j=1,ndof
                 cons(:,j,i) = cons(:,j,i) + dt*conv(:,j,i)/(det_jcb(i)*mass(j,j))
-                if (eq.eq.21) then
+                if (eq.eq.21 .or. shock_capture.eq.1) then
                     cons(:,j,i) = cons(:,j,i) + dt*diff(:,j,i)/(det_jcb(i)*mass(j,j))
                 endif
             enddo
@@ -58,6 +58,10 @@ subroutine compute_time_step(dt, dt_limit)
         stop
     endif
 
+    ! The sensor is updated once per timestep. Residual/Jacobian evaluations then
+    ! use this frozen viscosity field, as in the weakly coupled Persson approach.
+    if (shock_capture.eq.1) call update_artificial_viscosity()
+
     dt = huge(1.d0)
     npoint = max(ndof+1,3)
 
@@ -80,6 +84,7 @@ subroutine compute_time_step(dt, dt_limit)
 
         dt = min(dt,cfl*vol(elem)/(dble(2*ndof-1)*max_speed))
 
+        alpha_diff = 0.d0
         if (eq.eq.21) then
             if (rho_min.le.0.d0) then
                 write(*,*) 'ERROR: non-positive density in compute_time_step'
@@ -88,8 +93,14 @@ subroutine compute_time_step(dt, dt_limit)
 
             alpha_diff = max(viscosity/rho_min, &
                 gamma*viscosity/(prandtl*rho_min))
+        endif
+        if (shock_capture.eq.1) then
+            alpha_diff = max(alpha_diff,maxval(av_end(:,elem)))
+        endif
+
+        if (alpha_diff.gt.tiny(1.d0)) then
             dt_diff = cfl*vol(elem)**2 &
-                /(dble(2*ndof-1)**2*max(alpha_diff,tiny(1.d0)))
+                /(dble(2*ndof-1)**2*alpha_diff)
             dt = min(dt,dt_diff)
         endif
     enddo
@@ -271,14 +282,14 @@ contains
 
         call unpack_solution(vec)
         call rhs_conv()
-        if (eq.eq.21) call rhs_diff()
+        if (eq.eq.21 .or. shock_capture.eq.1) call rhs_diff()
 
         do elem=1,nvol
             do dof=1,ndof
                 do var=1,nvar
                     idx = vector_index(var,dof,elem)
                     rhs(idx) = conv(var,dof,elem)/(det_jcb(elem)*mass(dof,dof))
-                    if (eq.eq.21) then
+                    if (eq.eq.21 .or. shock_capture.eq.1) then
                         rhs(idx) = rhs(idx) &
                             + diff(var,dof,elem)/(det_jcb(elem)*mass(dof,dof))
                     endif
