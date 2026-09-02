@@ -37,9 +37,17 @@ CMakeFiles/IFS_02_solver_dg.dir/m_point_dg.mod.stamp: CMakeFiles/IFS_02_solver_d
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_module.f90.o.provides.build:
 	$(CMAKE_COMMAND) -E touch CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_module.f90.o.provides.build
 CMakeFiles/IFS_02_solver_dg.dir/build: CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_module.f90.o.provides.build
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_flow.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_folder.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_input.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_point_dg.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_read.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_folder.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_read.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_input.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_read.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_point_dg.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_flow.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_input.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_parameter.mod.stamp
+CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_point_dg.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_flow.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_input.mod.stamp
 CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.o: CMakeFiles/IFS_02_solver_dg.dir/m_parameter.mod.stamp

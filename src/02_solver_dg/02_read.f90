@@ -9,85 +9,56 @@ subroutine read_input()
     character(len=512) :: line
 
     open(1,file=''//folder_input//'input02.dat',status='old')
-    read(1,*); read(1,*); read(1,*); read(1,*)
     read(1,'(A)') line
+    read(1,'(A)') line
+    read(1,'(A)') line
+
+    ! Equation and initial condition
+    read(1,'(A)') line
+    read(1,*,iostat=ios) eq, initial_condition
+    if (ios.ne.0) goto 100
+
+    ! Physical parameters
+    read(1,'(A)') line
+    read(1,'(A)') line
+    read(1,*,iostat=ios) viscosity, prandtl
+    if (ios.ne.0) goto 100
+
+    ! Spatial discretization
+    read(1,'(A)') line
+    read(1,'(A)') line
+    read(1,*,iostat=ios) order, flux, diffusion, shock_capture, av_c, av_kappa
+    if (ios.ne.0) goto 100
+
+    ! Time integration
+    read(1,'(A)') line
+    read(1,'(A)') line
+    read(1,*,iostat=ios) time, dt_type, t_order, t_fixed, cfl, t_final
+    if (ios.ne.0) goto 100
+
+    ! Linear solver
+    read(1,'(A)') line
+    read(1,'(A)') line
+    read(1,*,iostat=ios) matrix, pre
+    if (ios.ne.0) goto 100
     close(1)
+    goto 101
 
-    viscosity = 0.d0
-    prandtl = 0.72d0
-    shock_capture = 0
-    av_c = 0.5d0
-    av_kappa = 1.d0
+100 continue
+    close(1)
+    write(*,*) 'ERROR: invalid input02.dat format'
+    stop
 
-    read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, &
-        viscosity, prandtl, shock_capture, av_c, av_kappa
-
-    if (ios.ne.0) then
-        read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion, &
-            viscosity, prandtl
-    endif
-    if (ios.ne.0) then
-        read(line,*,iostat=ios) order, flux, time, cfl, t_final, eq, diffusion
-        if (ios.ne.0) then
-            write(*,*) 'ERROR: invalid data line in input02.dat'
-            stop
-        endif
-        if (eq.eq.21) then
-            write(*,*) 'ERROR: eq = 21 requires viscosity and Prandtl number'
-            stop
-        endif
-    endif
-
-    if (order.lt.0) then
-        write(*,*) 'ERROR: order must be non-negative. order = ', order
-        stop
-    endif
-    if (t_final.lt.0.d0) then
-        write(*,*) 'ERROR: t_final must be non-negative. t_final = ', t_final
-        stop
-    endif
-    if (prandtl.le.0.d0) then
-        write(*,*) 'ERROR: Prandtl number must be positive. Pr = ', prandtl
-        stop
-    endif
-    if (diffusion.ne.0 .and. diffusion.ne.1) then
-        write(*,*) 'ERROR: diffusion must be 0 (BR1) or 1 (BR2). diffusion = ', diffusion
-        stop
-    endif
-    if (shock_capture.ne.0 .and. shock_capture.ne.1) then
-        write(*,*) 'ERROR: shock_capture must be 0 or 1. shock_capture = ', shock_capture
-        stop
-    endif
-    if (shock_capture.eq.1 .and. order.lt.1) then
-        write(*,*) 'ERROR: shock capturing requires order >= 1'
-        stop
-    endif
-    if (av_c.lt.0.d0) then
-        write(*,*) 'ERROR: av_c must be non-negative. av_c = ', av_c
-        stop
-    endif
-    if (av_kappa.le.0.d0) then
-        write(*,*) 'ERROR: av_kappa must be positive. av_kappa = ', av_kappa
-        stop
-    endif
-
-    select case(eq)
-    case(20)
-        viscosity = 0.d0
-    case(21)
-        if (viscosity.le.0.d0) then
-            write(*,*) 'ERROR: viscosity must be positive for eq = 21'
-            stop
-        endif
-    case default
-        write(*,*) 'ERROR: current solver supports only eq = 20 or 21. eq = ', eq
-        stop
-    end select
+101 continue
 
     select case(dim)
     case(1)
         ndof = order + 1
-        nvar = 3
+        if (eq.eq.10 .or. eq.eq.11) then
+            nvar = 1
+        else
+            nvar = 3
+        endif
     case default
         write(*,*) 'ERROR: Unsupported dimension = ', dim
         stop

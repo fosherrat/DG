@@ -1,19 +1,45 @@
 #######################################################################################################################################
 Input file 2
 #######################################################################################################################################
-[order]     [flux]     [time]     [CFL]     [t_final]     [eq]      [diffusion]     [viscosity]     [Pr]     [shock_capture]     [av_c]     [av_kappa]
-3           0          0          0.5       0.25          21        1               1.0e-3          0.72     1                   0.5        1.0
+[eq]            [initial]
+20              2
+
+[viscosity]     [Pr]
+1.0e-3          0.72
+
+[order]         [flux]          [diffusion]     [shock_capture]     [av_c]          [av_kappa]
+3               0               1               1                   1.0             2.0
+
+[time_type]     [dt_type]       [t_order]       [t_fixed]           [CFL]           [t_final]       
+0               0               2               0.001               0.1             0.20                          
+
+[matrix]        [pre]
+0               0
 #######################################################################################################################################
+[problem]
+-> eq: 10(linear advection, a = 1), 11(linear advection-diffusion, a = 1, D = viscosity), 20(euler), 21(euler + viscous terms)
+-> initial: 0(sine density wave), 1(constant state), 2(Sod shock tube at x = 0.5)
+
+[physical values]
+-> viscosity: diffusivity D for eq = 11; constant dynamic viscosity for eq = 21
+-> Pr: Prandtl number
+
+[spatial discretization]
 -> order: solution order
 -> flux: 0(LLF)
--> time: 0(euler explicit)
--> CFL: CFL number
--> t_final: final physical time
--> eq: 20(euler), 21(euler + viscous terms)
 -> diffusion: 0(BR1), 1(BR2), also used for the artificial-viscosity gradient
--> viscosity: constant dynamic viscosity used by the 1D Navier-Stokes viscous flux
--> Pr: Prandtl number
--> shock_capture: 0(off), 1(Persson density sensor + C0 artificial viscosity)
+-> shock_capture: 0(off), 1(Persson density sensor + C0 artificial viscosity); must be 0 for eq = 10 or 11
 -> av_c: maximum viscosity coefficient, eps_max = av_c*(h/p)*(abs(u)+c)
 -> av_kappa: half-width of the smooth activation interval in log10(sensor)
+
+[time_integration]
+-> time_type: 0(explicit-euler,RK), 1(implicit-BDF)
+-> dt_type: 0(CFL), 1(fixed)
+-> t_order: time stepping order
+-> CFL: CFL number
+-> t_final: final physical time
+
+[linear solver]
+-> matrix(matrix solver): 0(GMRES)
+-> pre(preconditioner): 0(none), 1(Block-Jacobi)
 #######################################################################################################################################

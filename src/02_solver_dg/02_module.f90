@@ -34,8 +34,11 @@
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     
     ! input file variables
-    integer :: order, flux, time, eq, diffusion, shock_capture
-    double precision :: cfl, t_final, viscosity, prandtl, av_c, av_kappa
+    integer :: order, flux, time, dt_type, t_order
+    integer :: eq, diffusion, shock_capture, initial_condition
+    integer :: matrix, pre
+    double precision, parameter :: linear_advection_speed = 1.d0
+    double precision :: cfl, t_fixed, t_final, viscosity, prandtl, av_c, av_kappa
     
     ! calculated variables
     integer :: ndof, nvar

@@ -12,6 +12,7 @@ subroutine rhs_diff()
     double precision :: ul(nvar), ur(nvar), ql(nvar), qr(nvar)
     double precision :: jump_u(nvar), lift_l(nvar), lift_r(nvar)
     double precision :: fvl(nvar), fvr(nvar), fvhat(nvar)
+    double precision, external :: poly_value
 
     ! One-dimensional BR1/BR2 discretization for the physical and artificial
     ! viscous fluxes. Persson artificial viscosity uses the same lifted gradient.
@@ -241,6 +242,10 @@ contains
         ! Persson artificial viscosity applies a scalar Laplacian to every
         ! conservative equation: F_av = eps_av*grad(U).
         fv(:) = eps_av*grad_u(:)
+        if (eq.eq.11) then
+            fv(1) = fv(1) + viscosity*grad_u(1)
+            return
+        endif
         if (eq.ne.21) return
 
         rho = u(1)
@@ -260,17 +265,5 @@ contains
         fv(2) = fv(2) + tau
         fv(3) = fv(3) + vel*tau + viscosity*gamma*grad_eint/prandtl
     end subroutine viscous_flux_1d
-
-    double precision function poly_value(coef,ncoef,x)
-        integer, intent(in) :: ncoef
-        double precision, intent(in) :: coef(ncoef), x
-
-        integer :: ii
-
-        poly_value = 0.d0
-        do ii=ncoef,1,-1
-            poly_value = poly_value*x + coef(ii)
-        enddo
-    end function poly_value
 
 end subroutine rhs_diff

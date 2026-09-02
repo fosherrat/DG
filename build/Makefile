@@ -454,6 +454,30 @@ src/02_solver_dg/02_module.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_module.f90.s
 .PHONY : src/02_solver_dg/02_module.f90.s
 
+src/02_solver_dg/02_post.o: src/02_solver_dg/02_post.f90.o
+.PHONY : src/02_solver_dg/02_post.o
+
+# target to build an object file
+src/02_solver_dg/02_post.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.o
+.PHONY : src/02_solver_dg/02_post.f90.o
+
+src/02_solver_dg/02_post.i: src/02_solver_dg/02_post.f90.i
+.PHONY : src/02_solver_dg/02_post.i
+
+# target to preprocess a source file
+src/02_solver_dg/02_post.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.i
+.PHONY : src/02_solver_dg/02_post.f90.i
+
+src/02_solver_dg/02_post.s: src/02_solver_dg/02_post.f90.s
+.PHONY : src/02_solver_dg/02_post.s
+
+# target to generate assembly for a file
+src/02_solver_dg/02_post.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_post.f90.s
+.PHONY : src/02_solver_dg/02_post.f90.s
+
 src/02_solver_dg/02_read.o: src/02_solver_dg/02_read.f90.o
 .PHONY : src/02_solver_dg/02_read.o
 
@@ -478,6 +502,30 @@ src/02_solver_dg/02_read.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_read.f90.s
 .PHONY : src/02_solver_dg/02_read.f90.s
 
+src/02_solver_dg/02_shock.o: src/02_solver_dg/02_shock.f90.o
+.PHONY : src/02_solver_dg/02_shock.o
+
+# target to build an object file
+src/02_solver_dg/02_shock.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.o
+.PHONY : src/02_solver_dg/02_shock.f90.o
+
+src/02_solver_dg/02_shock.i: src/02_solver_dg/02_shock.f90.i
+.PHONY : src/02_solver_dg/02_shock.i
+
+# target to preprocess a source file
+src/02_solver_dg/02_shock.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.i
+.PHONY : src/02_solver_dg/02_shock.f90.i
+
+src/02_solver_dg/02_shock.s: src/02_solver_dg/02_shock.f90.s
+.PHONY : src/02_solver_dg/02_shock.s
+
+# target to generate assembly for a file
+src/02_solver_dg/02_shock.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_shock.f90.s
+.PHONY : src/02_solver_dg/02_shock.f90.s
+
 src/02_solver_dg/02_time.o: src/02_solver_dg/02_time.f90.o
 .PHONY : src/02_solver_dg/02_time.o
 
@@ -501,6 +549,30 @@ src/02_solver_dg/02_time.s: src/02_solver_dg/02_time.f90.s
 src/02_solver_dg/02_time.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_time.f90.s
 .PHONY : src/02_solver_dg/02_time.f90.s
+
+src/02_solver_dg/02_utils.o: src/02_solver_dg/02_utils.f90.o
+.PHONY : src/02_solver_dg/02_utils.o
+
+# target to build an object file
+src/02_solver_dg/02_utils.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_utils.f90.o
+.PHONY : src/02_solver_dg/02_utils.f90.o
+
+src/02_solver_dg/02_utils.i: src/02_solver_dg/02_utils.f90.i
+.PHONY : src/02_solver_dg/02_utils.i
+
+# target to preprocess a source file
+src/02_solver_dg/02_utils.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_utils.f90.i
+.PHONY : src/02_solver_dg/02_utils.f90.i
+
+src/02_solver_dg/02_utils.s: src/02_solver_dg/02_utils.f90.s
+.PHONY : src/02_solver_dg/02_utils.s
+
+# target to generate assembly for a file
+src/02_solver_dg/02_utils.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_02_solver_dg.dir/build.make CMakeFiles/IFS_02_solver_dg.dir/src/02_solver_dg/02_utils.f90.s
+.PHONY : src/02_solver_dg/02_utils.f90.s
 
 # Help Target
 help:
@@ -551,12 +623,21 @@ help:
 	@echo "... src/02_solver_dg/02_module.o"
 	@echo "... src/02_solver_dg/02_module.i"
 	@echo "... src/02_solver_dg/02_module.s"
+	@echo "... src/02_solver_dg/02_post.o"
+	@echo "... src/02_solver_dg/02_post.i"
+	@echo "... src/02_solver_dg/02_post.s"
 	@echo "... src/02_solver_dg/02_read.o"
 	@echo "... src/02_solver_dg/02_read.i"
 	@echo "... src/02_solver_dg/02_read.s"
+	@echo "... src/02_solver_dg/02_shock.o"
+	@echo "... src/02_solver_dg/02_shock.i"
+	@echo "... src/02_solver_dg/02_shock.s"
 	@echo "... src/02_solver_dg/02_time.o"
 	@echo "... src/02_solver_dg/02_time.i"
 	@echo "... src/02_solver_dg/02_time.s"
+	@echo "... src/02_solver_dg/02_utils.o"
+	@echo "... src/02_solver_dg/02_utils.i"
+	@echo "... src/02_solver_dg/02_utils.s"
 .PHONY : help
 
 

@@ -10,6 +10,7 @@ subroutine update_artificial_viscosity()
     double precision :: energy, energy_p, ratio, s0, eps0, eps_face
     double precision :: xi, rho, vel, pressure, speed, max_speed
     double precision :: u(nvar)
+    double precision, external :: poly_value
 
     if (dim.ne.1) then
         write(*,*) 'ERROR: artificial viscosity currently supports only dim = 1'
@@ -100,19 +101,5 @@ subroutine update_artificial_viscosity()
             endif
         endif
     enddo
-
-contains
-
-    double precision function poly_value(coef,ncoef,x)
-        integer, intent(in) :: ncoef
-        double precision, intent(in) :: coef(ncoef), x
-
-        integer :: i
-
-        poly_value = 0.d0
-        do i=ncoef,1,-1
-            poly_value = poly_value*x + coef(i)
-        enddo
-    end function poly_value
 
 end subroutine update_artificial_viscosity

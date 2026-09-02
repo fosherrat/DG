@@ -75,35 +75,83 @@ subroutine build_gauss_quadrature()
 
     implicit none
 
+    external :: gauss_legendre_rule
+
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    ! gauss-legendre quadrature can approximate to 2*nquad-1 order
-    ! nquad = ndof + 1 --> approximate to 2*order+3
     nquad = ndof+1
-    allocate(gauss_x(nquad), gauss_w(nquad)); gauss_x = 0.d0; gauss_w = 0.d0
-    
-    select case(nquad)
-    case(1)
-        gauss_x(1) = 0.d0; gauss_w(1) = 2.d0
-    case(2)
-        gauss_x(1) =  1.d0/sqrt(3.d0); gauss_w(1) = 1.d0
-        gauss_x(2) = -1.d0/sqrt(3.d0); gauss_w(2) = 1.d0
-    case(3)
-        gauss_x(1) = 0.d0; gauss_w(1) = 8.d0/9.d0
-        gauss_x(2) =  sqrt(3.d0/5.d0); gauss_w(2) = 5.d0/9.d0
-        gauss_x(3) = -sqrt(3.d0/5.d0); gauss_w(3) = 5.d0/9.d0
-    case(4)
-        gauss_x(1) =  sqrt(3.d0/7.d0 - 2.d0/7.d0*sqrt(6.d0/5.d0)); gauss_w(1) = (18.d0 + sqrt(30.d0))/36.d0
-        gauss_x(2) = -sqrt(3.d0/7.d0 - 2.d0/7.d0*sqrt(6.d0/5.d0)); gauss_w(2) = (18.d0 + sqrt(30.d0))/36.d0
-        gauss_x(3) =  sqrt(3.d0/7.d0 + 2.d0/7.d0*sqrt(6.d0/5.d0)); gauss_w(3) = (18.d0 - sqrt(30.d0))/36.d0
-        gauss_x(4) = -sqrt(3.d0/7.d0 + 2.d0/7.d0*sqrt(6.d0/5.d0)); gauss_w(4) = (18.d0 - sqrt(30.d0))/36.d0
-    case(5)
-        gauss_x(1) = 0.d0; gauss_w(1) = 128.d0/225.d0
-        gauss_x(2) =  sqrt(5.d0 - 2.d0*sqrt(10.d0/7.d0))/3.d0; gauss_w(2) = (322.d0 + 13.d0*sqrt(70.d0))/900.d0
-        gauss_x(3) = -sqrt(5.d0 - 2.d0*sqrt(10.d0/7.d0))/3.d0; gauss_w(3) = (322.d0 + 13.d0*sqrt(70.d0))/900.d0
-        gauss_x(4) =  sqrt(5.d0 + 2.d0*sqrt(10.d0/7.d0))/3.d0; gauss_w(4) = (322.d0 - 13.d0*sqrt(70.d0))/900.d0
-        gauss_x(5) = -sqrt(5.d0 + 2.d0*sqrt(10.d0/7.d0))/3.d0; gauss_w(5) = (322.d0 - 13.d0*sqrt(70.d0))/900.d0
-    case default
-        write(*,*) 'ERROR: gauss quadrature point should be in range of 1-5. current nquad = ', nquad; stop
-    end select
-    
+    if (nquad.lt.1) then
+        write(*,*) 'ERROR: nquad must be positive. current nquad = ', nquad
+        stop
+    endif
+
+    allocate(gauss_x(nquad), gauss_w(nquad))
+    call gauss_legendre_rule(nquad, gauss_x, gauss_w)
+
 end subroutine build_gauss_quadrature
+
+
+
+
+subroutine gauss_legendre_rule(n, x, w)
+    implicit none
+
+    integer, intent(in) :: n
+    double precision, intent(out) :: x(n), w(n)
+    integer :: i, j, m, iter
+    logical :: converged
+    double precision :: z, dz, p_nm1, p_n, p_np1, dp_n
+    double precision, parameter :: tolerance = 1.d-14
+    integer, parameter :: max_iterations = 100
+
+    ! An n-point Gauss-Legendre rule exactly integrates polynomials through
+    ! degree 2*n-1.  Find roots of P_n with Newton iteration and use symmetry.
+    if (n.lt.1) then
+        write(*,*) 'ERROR: Gauss-Legendre rule requires n >= 1. n = ', n
+        stop
+    endif
+
+    m = (n+1)/2
+    do i=1,m
+        z = cos(acos(-1.d0)*(dble(i)-0.25d0)/(dble(n)+0.5d0))
+        converged = .false.
+
+        do iter=1,max_iterations
+            p_nm1 = 1.d0
+            p_n = z
+            do j=2,n
+                p_np1 = ((2.d0*dble(j)-1.d0)*z*p_n - dble(j-1)*p_nm1)/dble(j)
+                p_nm1 = p_n
+                p_n = p_np1
+            enddo
+
+            dp_n = dble(n)*(z*p_n-p_nm1)/(z*z-1.d0)
+            dz = p_n/dp_n
+            z = z - dz
+            if (abs(dz).le.tolerance) then
+                converged = .true.
+                exit
+            endif
+        enddo
+
+        if (.not.converged) then
+            write(*,*) 'ERROR: Gauss-Legendre Newton iteration did not converge for root ', i
+            stop
+        endif
+
+        ! Re-evaluate P_n' at the converged root before forming its weight.
+        p_nm1 = 1.d0
+        p_n = z
+        do j=2,n
+            p_np1 = ((2.d0*dble(j)-1.d0)*z*p_n - dble(j-1)*p_nm1)/dble(j)
+            p_nm1 = p_n
+            p_n = p_np1
+        enddo
+        dp_n = dble(n)*(z*p_n-p_nm1)/(z*z-1.d0)
+
+        x(i) = -z
+        x(n+1-i) = z
+        w(i) = 2.d0/((1.d0-z*z)*dp_n*dp_n)
+        w(n+1-i) = w(i)
+    enddo
+
+end subroutine gauss_legendre_rule

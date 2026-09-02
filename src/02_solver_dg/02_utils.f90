@@ -1,16 +1,14 @@
-subroutine poly_1d(coeff, x, val)
-    use m_parameter
-    use m_input
-
+double precision function poly_value(coef, ncoef, x)
     implicit none
 
-    double precision, intent(in) :: coeff(:), x
-    double precision, intent(out) :: val
-    integer :: i, n
-    !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    val = 0.d0; n = size(coeff)
-    do i=1,n
-        val = val + coeff(i)*x**(i-1)
+    integer, intent(in) :: ncoef
+    double precision, intent(in) :: coef(ncoef), x
+    integer :: i
+
+    ! Horner evaluation of coef(1) + coef(2)*x + ... .
+    poly_value = 0.d0
+    do i=ncoef,1,-1
+        poly_value = poly_value*x + coef(i)
     enddo
 
-end subroutine poly_1d
+end function poly_value

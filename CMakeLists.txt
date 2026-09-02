@@ -22,11 +22,13 @@ add_executable(IFS_02_solver_dg
     src/02_solver_dg/02_module.f90
     src/02_solver_dg/02_read.f90
     src/02_solver_dg/02_basis.f90
+    src/02_solver_dg/02_utils.f90
     src/02_solver_dg/02_init.f90
     src/02_solver_dg/02_conv.f90
     src/02_solver_dg/02_shock.f90
     src/02_solver_dg/02_diff.f90
     src/02_solver_dg/02_time.f90
+    src/02_solver_dg/02_post.f90
     src/02_solver_dg/02_deallocate.f90
     src/02_solver_dg/02_main.f90
 )

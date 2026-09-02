@@ -6,6 +6,7 @@ subroutine rhs_conv()
     
     implicit none
 
+    integer, parameter :: periodic_boundary_id = 11
     integer :: i, j, k, q, vl, vr
     double precision :: xq, xi, phi, grad_phi, normal
     double precision :: uq(nvar), fq(nvar), ul(nvar), ur(nvar), fhat(nvar)
@@ -30,7 +31,11 @@ subroutine rhs_conv()
                 uq(:) = uq(:) + cons(:,k,i)*phi
             enddo
 
-            call flux_euler(1,uq,fq)
+            if (eq.eq.10 .or. eq.eq.11) then
+                fq(1) = linear_advection_speed*uq(1)
+            else
+                call flux_euler(1,uq,fq)
+            endif
 
             do k=1,ndof
                 grad_phi = 0.d0
@@ -68,13 +73,20 @@ subroutine rhs_conv()
                 enddo
                 ur(:) = ur(:) + cons(:,k,vr)*phi
             enddo
+        elseif ((eq.eq.10 .or. eq.eq.11) .and. sur_id(i).eq.periodic_boundary_id) then
+            call periodic_exterior_state(i,ur)
         else
             ur(:) = ul(:)
         endif
 
         select case(flux)
         case(0)
-            call flux_llf(ul,ur,normal,fhat)
+            if (eq.eq.10 .or. eq.eq.11) then
+                fhat(1) = 0.5d0*linear_advection_speed*(ul(1)+ur(1))*normal &
+                    - 0.5d0*abs(linear_advection_speed)*(ur(1)-ul(1))
+            else
+                call flux_llf(ul,ur,normal,fhat)
+            endif
         case default
             write(*,*) 'ERROR: Unsupported flux = ', flux
             stop
@@ -100,6 +112,45 @@ subroutine rhs_conv()
             enddo
         endif
     enddo
+
+contains
+
+    subroutine periodic_exterior_state(face, state)
+        integer, intent(in) :: face
+        double precision, intent(out) :: state(nvar)
+
+        integer :: partner, candidate, elem, basis
+        double precision :: partner_xi, partner_phi
+
+        partner = 0
+        do candidate=1,nsur_tot
+            if (candidate.ne.face .and. con_sur_vol(2,candidate).lt.0 .and. &
+                sur_id(candidate).eq.sur_id(face)) then
+                if (partner.ne.0) then
+                    write(*,*) 'ERROR: periodic boundary tag must identify exactly two faces. tag = ', &
+                        sur_id(face)
+                    stop
+                endif
+                partner = candidate
+            endif
+        enddo
+
+        if (partner.eq.0) then
+            write(*,*) 'ERROR: periodic boundary partner not found. tag = ', sur_id(face)
+            stop
+        endif
+
+        elem = con_sur_vol(1,partner)
+        partner_xi = (sur_cen(1,partner)-vol_cen(1,elem))/jcb(1,1,elem)
+        state = 0.d0
+        do basis=1,ndof
+            partner_phi = 0.d0
+            do j=1,ndof
+                partner_phi = partner_phi + legendre(j,basis)*partner_xi**dble(j-1)
+            enddo
+            state(:) = state(:) + cons(:,basis,elem)*partner_phi
+        enddo
+    end subroutine periodic_exterior_state
 
 end subroutine rhs_conv
 
@@ -164,7 +215,6 @@ subroutine flux_llf(ul,ur,normal,fhat)
     fr(2) = ur(2)**2/ur(1) + pr
     fr(3) = ur(2)*(ur(3)+pr)/ur(1)
 
-    alpha = max(abs(ul(2)/ul(1))+sqrt(gamma*pl/ul(1)), &
-                abs(ur(2)/ur(1))+sqrt(gamma*pr/ur(1)))
+    alpha = max(abs(ul(2)/ul(1))+sqrt(gamma*pl/ul(1)), abs(ur(2)/ur(1))+sqrt(gamma*pr/ur(1)))
     fhat(:) = 0.5d0*(fl(:)+fr(:))*normal - 0.5d0*alpha*(ur(:)-ul(:))
 end subroutine flux_llf
