@@ -62,7 +62,6 @@
     double precision, allocatable :: x_ver(:,:)
     double precision, allocatable :: vol(:), vol_cen(:,:)
     double precision, allocatable :: sur(:), sur_cen(:,:), sur_vec(:,:)
-    double precision, allocatable :: jcb(:,:,:), det_jcb(:), inv_jcb(:,:,:)
 
     end module m_point_dg
 

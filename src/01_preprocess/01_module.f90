@@ -63,7 +63,6 @@
     ! dg specialized variables
     ! con_sur_local: local surface number of volume
     integer, allocatable :: con_sur_local(:,:), sur_perm(:,:)
-    double precision, allocatable :: jcb(:,:,:), det_jcb(:), inv_jcb(:,:,:)
 
     end module m_point_dg
 

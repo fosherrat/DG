@@ -83,7 +83,6 @@ subroutine read_point()
 
     allocate(x_ver(dim,nver))
     allocate(vol_id(nvol), vol_nv(nvol), vol(nvol), vol_cen(dim,nvol), vol_con(8,nvol))
-    allocate(jcb(dim,dim,nvol), det_jcb(nvol), inv_jcb(dim,dim,nvol))
     allocate(sur_id(nsur_tot), sur_nv(nsur_tot), sur(nsur_tot))
     allocate(sur_cen(dim,nsur_tot), sur_vec(dim,nsur_tot), con_sur_vol(2,nsur_tot))
 
@@ -92,13 +91,11 @@ subroutine read_point()
     enddo
 
     do i=1,nvol
-        read(2,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i), &
-            det_jcb(i), jcb(:,:,i), inv_jcb(:,:,i)
+        read(2,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i)
     enddo
 
     do i=1,nsur_tot
-        read(2,*) sur_id(i), sur_nv(i), sur(i), sur_cen(:,i), sur_vec(:,i), &
-            con_sur_vol(:,i)
+        read(2,*) sur_id(i), sur_nv(i), sur(i), sur_cen(:,i), sur_vec(:,i), con_sur_vol(:,i)
     enddo
 
     close(2)

@@ -11,9 +11,7 @@ subroutine mesh_setting_dg
     
     !calculate volume/volume center
     allocate(vol_cen(dim,nvol),vol(nvol))
-    allocate(jcb(dim,dim,nvol), det_jcb(nvol), inv_jcb(dim,dim,nvol))
     vol_cen = 0.d0; vol = 0.d0
-    jcb = 0.d0; det_jcb = 0.d0; inv_jcb = 0.d0
 
     do i=1,nvol
         call geo_volume(i,vol_nv(i))
@@ -143,30 +141,25 @@ subroutine geo_surface(i,size1)
     case(3)
         select case(size1)
         case(3) ! triangular surface
-            x1 = x(:,2)-x(:,1)
-            x2 = x(:,3)-x(:,1)
+            x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1)
             call cross(x1,x2,normal)
             norm_normal = sqrt(dot_product(normal,normal))
             sur(i) = 0.5d0*norm_normal
         case(4) ! quadrilateral: vertex IDs are sorted, so use all 4 triangles
-            x1 = x(:,2)-x(:,1)
-            x2 = x(:,3)-x(:,1)
+            x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1)
             call cross(x1,x2,normal)
             norm_normal = sqrt(dot_product(normal,normal))
             sur(i) = norm_normal
 
-            x1 = x(:,2)-x(:,1)
-            x2 = x(:,4)-x(:,1)
+            x1 = x(:,2)-x(:,1); x2 = x(:,4)-x(:,1)
             call cross(x1,x2,normal2)
             sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
 
-            x1 = x(:,3)-x(:,1)
-            x2 = x(:,4)-x(:,1)
+            x1 = x(:,3)-x(:,1); x2 = x(:,4)-x(:,1)
             call cross(x1,x2,normal2)
             sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
 
-            x1 = x(:,3)-x(:,2)
-            x2 = x(:,4)-x(:,2)
+            x1 = x(:,3)-x(:,2); x2 = x(:,4)-x(:,2)
             call cross(x1,x2,normal2)
             sur(i) = 0.25d0*(sur(i) + sqrt(dot_product(normal2,normal2)))
         case default

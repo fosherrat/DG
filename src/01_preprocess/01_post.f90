@@ -20,7 +20,7 @@ subroutine post_dg()
     enddo
 
     do i=1,nvol
-        write(4,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i), det_jcb(i), jcb(:,:,i), inv_jcb(:,:,i)
+        write(4,*) vol_id(i), vol_nv(i), vol(i), vol_cen(:,i), vol_con(:,i)
     enddo
 
     do i=1,nsur_tot
