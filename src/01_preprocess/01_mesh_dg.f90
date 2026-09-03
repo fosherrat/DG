@@ -17,64 +17,137 @@ subroutine mesh_setting_dg
         call geo_volume(i,vol_nv(i))
     enddo
 
-    !calcualte surface info
-    allocate(con_sur_vol(2,nsur_tot)); con_sur_vol = -1
+    ! calculate surface topology
+    allocate(con_sur_vol(2,nsur_tot));   con_sur_vol   = -1
+    allocate(con_sur_local(2,nsur_tot)); con_sur_local = -1
+    allocate(con_vol_sur(6,nvol));       con_vol_sur   = -1
+    allocate(sur_key(4,nsur_tot));       sur_key       = 0
+
     allocate(sur_cen(dim,nsur_tot)); sur_cen = 0.d0
     allocate(sur_vec(dim,nsur_tot)); sur_vec = 0.d0
     allocate(sur(nsur_tot)); sur = 0.d0
     s = 1
 
-    ! sort boundary surface vertex id
+    ! Preserve sur_con ordering.  Boundary faces are matched through sur_key only.
     do i=1,nsur_b
         id = i + nsur_int
-        temp1(:) = sur_con(:,id); call sort(temp1, sur_nv(id)); sur_con(:,(id)) = temp1(:)
+        temp1 = sur_con(:,id)
+        call sort(temp1,sur_nv(id))
+        sur_key(:,id) = temp1
     enddo
 
-    ! interior surface --> sur_con, sur_nv/ total surface --> left,right volume mapping
+    ! Enumerate every element-local face.  The first incident element is left.
+    ! con_vol_sur(local_face,volume) and con_sur_local(side,surface) are filled in match.
     select case(dim)
     case(1)
-        do i=1,nvol ! line 1/2
-            temp1(:) = (/vol_con(1,i),0,0,0/); call match(i,temp1,1,s)
-            temp1(:) = (/vol_con(2,i),0,0,0/); call match(i,temp1,1,s)
+        do i=1,nvol
+            temp1 = (/vol_con(1,i),0,0,0/)
+            call match(i,1,temp1,1,s)
+
+            temp1 = (/vol_con(2,i),0,0,0/)
+            call match(i,2,temp1,1,s)
         enddo
+
     case(2)
         do i=1,nvol
             select case(vol_nv(i))
-            case(3) ! triangle 12/23/31
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),0,0/); call match(i,temp1,2,s)
-                temp1(:) = (/vol_con(2,i),vol_con(3,i),0,0/); call match(i,temp1,2,s)
-                temp1(:) = (/vol_con(3,i),vol_con(1,i),0,0/); call match(i,temp1,2,s)
-            case(4) ! quad 12/23/34/41
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),0,0/); call match(i,temp1,2,s)
-                temp1(:) = (/vol_con(2,i),vol_con(3,i),0,0/); call match(i,temp1,2,s)
-                temp1(:) = (/vol_con(3,i),vol_con(4,i),0,0/); call match(i,temp1,2,s)
-                temp1(:) = (/vol_con(4,i),vol_con(1,i),0,0/); call match(i,temp1,2,s)
+            case(3) ! triangle: 12/23/31
+                temp1 = (/vol_con(1,i),vol_con(2,i),0,0/)
+                call match(i,1,temp1,2,s)
+
+                temp1 = (/vol_con(2,i),vol_con(3,i),0,0/)
+                call match(i,2,temp1,2,s)
+
+                temp1 = (/vol_con(3,i),vol_con(1,i),0,0/)
+                call match(i,3,temp1,2,s)
+
+            case(4) ! quadrilateral: 12/23/34/41
+                temp1 = (/vol_con(1,i),vol_con(2,i),0,0/)
+                call match(i,1,temp1,2,s)
+
+                temp1 = (/vol_con(2,i),vol_con(3,i),0,0/)
+                call match(i,2,temp1,2,s)
+
+                temp1 = (/vol_con(3,i),vol_con(4,i),0,0/)
+                call match(i,3,temp1,2,s)
+
+                temp1 = (/vol_con(4,i),vol_con(1,i),0,0/)
+                call match(i,4,temp1,2,s)
             end select
         enddo
+
     case(3)
         do i=1,nvol
             select case(vol_nv(i))
-            case(4) !tetrahedron 123/124/234/314
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),0/); call match(i,temp1,3,s)
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(4,i),0/); call match(i,temp1,3,s)
-                temp1(:) = (/vol_con(2,i),vol_con(3,i),vol_con(4,i),0/); call match(i,temp1,3,s)
-                temp1(:) = (/vol_con(3,i),vol_con(1,i),vol_con(4,i),0/); call match(i,temp1,3,s)
-            case(8) !hexahedron 1234/1265/2376/3487/4158/5678
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),vol_con(4,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(6,i),vol_con(5,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(2,i),vol_con(3,i),vol_con(7,i),vol_con(6,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(3,i),vol_con(4,i),vol_con(8,i),vol_con(7,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(4,i),vol_con(1,i),vol_con(5,i),vol_con(8,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(5,i),vol_con(6,i),vol_con(7,i),vol_con(8,i)/); call match(i,temp1,4,s)
-            case(6) !prism 123/1254/2365/3146/456
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),0/); call match(i,temp1,3,s)
-                temp1(:) = (/vol_con(1,i),vol_con(2,i),vol_con(5,i),vol_con(4,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(2,i),vol_con(3,i),vol_con(6,i),vol_con(5,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(3,i),vol_con(1,i),vol_con(4,i),vol_con(6,i)/); call match(i,temp1,4,s)
-                temp1(:) = (/vol_con(4,i),vol_con(5,i),vol_con(6,i),0/); call match(i,temp1,3,s)
+            case(4) ! tetrahedron: 123/124/234/314
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),0/)
+                call match(i,1,temp1,3,s)
+
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(4,i),0/)
+                call match(i,2,temp1,3,s)
+
+                temp1 = (/vol_con(2,i),vol_con(3,i),vol_con(4,i),0/)
+                call match(i,3,temp1,3,s)
+
+                temp1 = (/vol_con(3,i),vol_con(1,i),vol_con(4,i),0/)
+                call match(i,4,temp1,3,s)
+
+            case(8) ! hexahedron: 1234/1265/2376/3487/4158/5678
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),vol_con(4,i)/)
+                call match(i,1,temp1,4,s)
+
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(6,i),vol_con(5,i)/)
+                call match(i,2,temp1,4,s)
+
+                temp1 = (/vol_con(2,i),vol_con(3,i),vol_con(7,i),vol_con(6,i)/)
+                call match(i,3,temp1,4,s)
+
+                temp1 = (/vol_con(3,i),vol_con(4,i),vol_con(8,i),vol_con(7,i)/)
+                call match(i,4,temp1,4,s)
+
+                temp1 = (/vol_con(4,i),vol_con(1,i),vol_con(5,i),vol_con(8,i)/)
+                call match(i,5,temp1,4,s)
+
+                temp1 = (/vol_con(5,i),vol_con(6,i),vol_con(7,i),vol_con(8,i)/)
+                call match(i,6,temp1,4,s)
+
+            case(6) ! prism: 123/1254/2365/3146/456
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(3,i),0/)
+                call match(i,1,temp1,3,s)
+
+                temp1 = (/vol_con(1,i),vol_con(2,i),vol_con(5,i),vol_con(4,i)/)
+                call match(i,2,temp1,4,s)
+
+                temp1 = (/vol_con(2,i),vol_con(3,i),vol_con(6,i),vol_con(5,i)/)
+                call match(i,3,temp1,4,s)
+
+                temp1 = (/vol_con(3,i),vol_con(1,i),vol_con(4,i),vol_con(6,i)/)
+                call match(i,4,temp1,4,s)
+
+                temp1 = (/vol_con(4,i),vol_con(5,i),vol_con(6,i),0/)
+                call match(i,5,temp1,3,s)
             end select
         enddo
     end select
+
+    if(s.ne.nsur_int+1) then
+        write(*,*) 'ERROR: interior face count mismatch'
+        stop
+    endif
+
+    do i=1,nsur_tot
+        if(con_sur_vol(1,i).lt.1) then
+            write(*,*) 'ERROR: face without left volume = ', i
+            stop
+        endif
+
+        if(i.le.nsur_int) then
+            if(con_sur_vol(2,i).lt.1) then
+                write(*,*) 'ERROR: interior face without right volume = ', i
+                stop
+            endif
+        endif
+    enddo
 
     ! total surface --> sur_cen, sur_vec, sur
     do i=1,nsur_tot
@@ -145,23 +218,18 @@ subroutine geo_surface(i,size1)
             call cross(x1,x2,normal)
             norm_normal = sqrt(dot_product(normal,normal))
             sur(i) = 0.5d0*norm_normal
-        case(4) ! quadrilateral: vertex IDs are sorted, so use all 4 triangles
+        case(4) ! quadrilateral: sur_con has cyclic left-volume ordering
             x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1)
             call cross(x1,x2,normal)
-            norm_normal = sqrt(dot_product(normal,normal))
-            sur(i) = norm_normal
-
-            x1 = x(:,2)-x(:,1); x2 = x(:,4)-x(:,1)
-            call cross(x1,x2,normal2)
-            sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
 
             x1 = x(:,3)-x(:,1); x2 = x(:,4)-x(:,1)
             call cross(x1,x2,normal2)
-            sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
 
-            x1 = x(:,3)-x(:,2); x2 = x(:,4)-x(:,2)
-            call cross(x1,x2,normal2)
-            sur(i) = 0.25d0*(sur(i) + sqrt(dot_product(normal2,normal2)))
+            sur(i) = 0.5d0*(sqrt(dot_product(normal,normal)) &
+                + sqrt(dot_product(normal2,normal2)))
+
+            normal = normal + normal2
+            norm_normal = sqrt(dot_product(normal,normal))
         case default
             write(*,*) 'ERROR: Unsupported 3D surface vertex count: ', size1; stop
         end select
