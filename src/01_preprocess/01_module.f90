@@ -49,7 +49,9 @@
     ! con: connected vertex id, nv: number of vertex composing an element, id: PID
     integer :: nver, nsur, nvol
     integer :: ntri, nqua, ntet, npri, nhex
-    ! sur_con stores the cyclic ordering of the left volume face.\n    ! sur_key stores sorted node IDs and is used only for face matching.\n    integer, allocatable :: sur_con(:,:), sur_key(:,:), sur_nv(:), sur_id(:)
+    ! sur_con stores the cyclic ordering of the left volume face.
+    ! sur_key stores sorted node IDs and is used only for face matching.
+    integer, allocatable :: sur_con(:,:), sur_key(:,:), sur_nv(:), sur_id(:)
     integer, allocatable :: vol_con(:,:), vol_nv(:), vol_id(:)
     double precision, allocatable :: x_ver(:,:)
 
