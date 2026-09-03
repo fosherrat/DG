@@ -89,65 +89,6 @@ end subroutine mesh_setting_dg
 
 
 
-subroutine match(i,temp1,size,s)
-    use m_point_dg
-    implicit none
-    
-    integer, intent(inout) :: s, temp1(4)
-    integer, intent(in) :: i, size
-    integer :: j
-    logical :: matched
-    !==========================================================================================
-    call sort(temp1,size)
-    
-    matched = .false.
-    do j=1,nsur_tot
-        if(all(sur_con(:,j).eq.temp1)) then
-            matched = .true.
-            if(j.gt.nsur_int) then 
-                con_sur_vol(1,j) = i
-                exit
-            else
-                con_sur_vol(2,j) = i
-                exit
-            endif
-        end if
-    enddo
-
-    if(matched.eqv..false.) then
-        sur_con(:,s) = temp1
-        con_sur_vol(1,s) = i
-        sur_nv(s) = size
-        s = s+1
-    endif
-end subroutine match
-
-
-
-
-
-subroutine sort(temp1,size)
-    implicit none
-
-    integer, intent(inout) :: temp1(4)
-    integer, intent(in) :: size
-    integer :: i, j, value
-    !==========================================================================================
-    
-     do i =2,size
-        value = temp1(i)
-        j = i - 1
-        do while (j.ge.1)
-            if (temp1(j) <= value) exit
-            temp1(j + 1) = temp1(j); j = j - 1
-        end do
-        temp1(j + 1) = value
-    end do
-end subroutine sort
-
-
-
-
 
 subroutine geo_surface(i,size1)
     use m_parameter
@@ -159,13 +100,19 @@ subroutine geo_surface(i,size1)
     integer, intent(in) :: i, size1
 
     integer :: j, k
-    double precision :: x1(dim), x2(dim), dir
+    double precision :: x(3,4), x1(3), x2(3), normal(3), normal2(3)
+    double precision :: norm_normal, dir
     !==========================================================================================
     !calculate surface center
     do j=1,size1
         sur_cen(:,i) = sur_cen(:,i)+x_ver(:,sur_con(j,i))
     enddo
     sur_cen(:,i) = sur_cen(:,i)/dble(size1)
+
+    x = 0.d0
+    do j=1,size1
+        x(1:dim,j) = x_ver(:,sur_con(j,i))
+    enddo
 
     ! calculate surface normal vector(sur_vec) and surface area(sur)
     select case(dim)
@@ -176,6 +123,65 @@ subroutine geo_surface(i,size1)
         if(dot_product(sur_vec(:,i),(sur_cen(:,i)-vol_cen(:,k))).lt.0) dir= -1.d0
         sur_vec(:,i) = dir*sur_vec(:,i)
         sur(i) = 1.d0
+    case(2)
+        if(size1.ne.2) then
+            write(*,*) 'ERROR: Unsupported 2D surface vertex count: ', size1; stop
+        endif
+
+        x1 = x(:,2)-x(:,1)
+        sur(i) = sqrt(dot_product(x1,x1))
+        if(sur(i).le.0.d0) then
+            write(*,*) 'ERROR: Degenerate 2D surface: ', i; stop
+        endif
+
+        ! Either perpendicular direction is valid initially; orient it from left to right.
+        sur_vec(:,i) = (/ -x1(2), x1(1) /)/sur(i)
+        k = con_sur_vol(1,i)
+        if(dot_product(sur_vec(:,i),sur_cen(:,i)-vol_cen(:,k)).lt.0.d0) then
+            sur_vec(:,i) = -sur_vec(:,i)
+        endif
+    case(3)
+        select case(size1)
+        case(3) ! triangular surface
+            x1 = x(:,2)-x(:,1)
+            x2 = x(:,3)-x(:,1)
+            call cross(x1,x2,normal)
+            norm_normal = sqrt(dot_product(normal,normal))
+            sur(i) = 0.5d0*norm_normal
+        case(4) ! quadrilateral: vertex IDs are sorted, so use all 4 triangles
+            x1 = x(:,2)-x(:,1)
+            x2 = x(:,3)-x(:,1)
+            call cross(x1,x2,normal)
+            norm_normal = sqrt(dot_product(normal,normal))
+            sur(i) = norm_normal
+
+            x1 = x(:,2)-x(:,1)
+            x2 = x(:,4)-x(:,1)
+            call cross(x1,x2,normal2)
+            sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
+
+            x1 = x(:,3)-x(:,1)
+            x2 = x(:,4)-x(:,1)
+            call cross(x1,x2,normal2)
+            sur(i) = sur(i) + sqrt(dot_product(normal2,normal2))
+
+            x1 = x(:,3)-x(:,2)
+            x2 = x(:,4)-x(:,2)
+            call cross(x1,x2,normal2)
+            sur(i) = 0.25d0*(sur(i) + sqrt(dot_product(normal2,normal2)))
+        case default
+            write(*,*) 'ERROR: Unsupported 3D surface vertex count: ', size1; stop
+        end select
+
+        if(norm_normal.le.0.d0) then
+            write(*,*) 'ERROR: Degenerate 3D surface: ', i; stop
+        endif
+        sur_vec(:,i) = normal/norm_normal
+        k = con_sur_vol(1,i)
+        if(dot_product(sur_vec(:,i),sur_cen(:,i)-vol_cen(:,k)).lt.0.d0) then
+            sur_vec(:,i) = -sur_vec(:,i)
+        endif
+
     case default
         write(*,*) 'ERROR: Unsupported dimension: ', dim; stop
     end select
@@ -193,12 +199,19 @@ subroutine geo_volume(i,size1)
     implicit none
 
     integer, intent(in) :: i, size1
+
     integer :: j
-    double precision :: x1, x2
+    double precision :: x(3,8), x1(3), x2(3), x3(3), x_cross(3)
     !==========================================================================================
+    !save vertex information
+    x = 0.d0
+    do j=1,size1
+        x(1:dim,j) = x_ver(:,vol_con(j,i))
+    enddo
+
     !calculate element center
     do j=1,size1
-        vol_cen(:,i) = vol_cen(:,i)+x_ver(:,vol_con(j,i))
+        vol_cen(:,i) = vol_cen(:,i) + x(:,j)
     enddo
     vol_cen(:,i) = vol_cen(:,i)/dble(size1)
 
@@ -206,20 +219,74 @@ subroutine geo_volume(i,size1)
     select case(dim)
     case(1)
         vol(i) = abs(x_ver(1,vol_con(1,i))-x_ver(1,vol_con(2,i)))
+    case(2)
+        select case(size1)
+        case(3) ! triangle
+            x1 = x(:,2)-x(:,1)
+            x2 = x(:,3)-x(:,1)
+            call cross(x1,x2,x_cross)
+            vol(i) = 0.5d0*sqrt(dot_product(x_cross,x_cross))
+        case(4) ! quadrilateral: triangles 123 and 134
+            x1 = x(:,2)-x(:,1)
+            x2 = x(:,3)-x(:,1)
+            call cross(x1,x2,x_cross)
+            vol(i) = 0.5d0*sqrt(dot_product(x_cross,x_cross))
+
+            x1 = x(:,3)-x(:,1)
+            x2 = x(:,4)-x(:,1)
+            call cross(x1,x2,x_cross)
+            vol(i) = vol(i) + 0.5d0*sqrt(dot_product(x_cross,x_cross))
+        case default
+            write(*,*) 'ERROR: Unsupported 2D element vertex count: ', size1; stop
+        end select
+    case(3)
+        select case(size1)
+        case(4) ! tetrahedron
+            x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1); x3 = x(:,4)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = abs(dot_product(x1,x_cross))/6.d0
+        case(6) ! prism: tetrahedra 1234, 2345, and 3456
+            x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1); x3 = x(:,4)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,3)-x(:,2); x2 = x(:,4)-x(:,2); x3 = x(:,5)-x(:,2)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,4)-x(:,3); x2 = x(:,5)-x(:,3); x3 = x(:,6)-x(:,3)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+        case(8) ! hexahedron: six tetrahedra sharing diagonal 1--7
+            x1 = x(:,2)-x(:,1); x2 = x(:,3)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,3)-x(:,1); x2 = x(:,4)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,4)-x(:,1); x2 = x(:,8)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,8)-x(:,1); x2 = x(:,5)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,5)-x(:,1); x2 = x(:,6)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+
+            x1 = x(:,6)-x(:,1); x2 = x(:,2)-x(:,1); x3 = x(:,7)-x(:,1)
+            call cross(x2,x3,x_cross)
+            vol(i) = vol(i) + abs(dot_product(x1,x_cross))/6.d0
+        case default
+            write(*,*) 'ERROR: Unsupported 3D element vertex count: ', size1; stop
+        end select
+
     case default
         write(*,*) 'ERROR: Unsupported dimension: ', dim; stop
-    end select
-
-    !calculate jacobian, inverse jacobian
-    select case(dim)
-    case(1)
-        x1 = x_ver(1,vol_con(1,i))
-        x2 = x_ver(1,vol_con(2,i))
-
-        jcb(1,1,i) = 0.5d0 * (x2 - x1)
-        det_jcb(i) = abs(jcb(1,1,i))
-        inv_jcb(1,1,i) = 1.d0 / jcb(1,1,i)
-    case default
     end select
 
 end subroutine geo_volume

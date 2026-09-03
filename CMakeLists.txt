@@ -8,6 +8,7 @@ set(CMAKE_Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/mod)
 add_executable(IFS_01_preprocessing
     src/01_preprocess/01_module.f90
     src/01_preprocess/01_read.f90
+    src/01_preprocess/01_utils.f90
     src/01_preprocess/01_mesh_dg.f90
     src/01_preprocess/01_post.f90
     src/01_preprocess/01_deallocate.f90

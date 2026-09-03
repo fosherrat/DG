@@ -286,6 +286,30 @@ src/01_preprocess/01_read.f90.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_01_preprocessing.dir/build.make CMakeFiles/IFS_01_preprocessing.dir/src/01_preprocess/01_read.f90.s
 .PHONY : src/01_preprocess/01_read.f90.s
 
+src/01_preprocess/01_utils.o: src/01_preprocess/01_utils.f90.o
+.PHONY : src/01_preprocess/01_utils.o
+
+# target to build an object file
+src/01_preprocess/01_utils.f90.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_01_preprocessing.dir/build.make CMakeFiles/IFS_01_preprocessing.dir/src/01_preprocess/01_utils.f90.o
+.PHONY : src/01_preprocess/01_utils.f90.o
+
+src/01_preprocess/01_utils.i: src/01_preprocess/01_utils.f90.i
+.PHONY : src/01_preprocess/01_utils.i
+
+# target to preprocess a source file
+src/01_preprocess/01_utils.f90.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_01_preprocessing.dir/build.make CMakeFiles/IFS_01_preprocessing.dir/src/01_preprocess/01_utils.f90.i
+.PHONY : src/01_preprocess/01_utils.f90.i
+
+src/01_preprocess/01_utils.s: src/01_preprocess/01_utils.f90.s
+.PHONY : src/01_preprocess/01_utils.s
+
+# target to generate assembly for a file
+src/01_preprocess/01_utils.f90.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/IFS_01_preprocessing.dir/build.make CMakeFiles/IFS_01_preprocessing.dir/src/01_preprocess/01_utils.f90.s
+.PHONY : src/01_preprocess/01_utils.f90.s
+
 src/02_solver_dg/02_basis.o: src/02_solver_dg/02_basis.f90.o
 .PHONY : src/02_solver_dg/02_basis.o
 
@@ -602,6 +626,9 @@ help:
 	@echo "... src/01_preprocess/01_read.o"
 	@echo "... src/01_preprocess/01_read.i"
 	@echo "... src/01_preprocess/01_read.s"
+	@echo "... src/01_preprocess/01_utils.o"
+	@echo "... src/01_preprocess/01_utils.i"
+	@echo "... src/01_preprocess/01_utils.s"
 	@echo "... src/02_solver_dg/02_basis.o"
 	@echo "... src/02_solver_dg/02_basis.i"
 	@echo "... src/02_solver_dg/02_basis.s"

@@ -57,7 +57,7 @@ subroutine read_msh()
     nsur = 0; nvol = 0
     ntri = 0; nqua = 0; ntet = 0; npri = 0; nhex = 0;
     allocate(ele_type(nele), ele_phys(nele), ele_nnode(nele))
-    allocate(ele_conn(27,nele))
+    allocate(ele_conn(8,nele))
 
     select case(dim)
     case(1)
@@ -110,30 +110,17 @@ subroutine read_msh()
     case(3)
         do i=1,nele
             read(2,'(a)') ctemp1; read(ctemp1,*) eid, etype, ntags
-
             select case(etype)
-            case(2)  ! triangle o1
+            case(2)
                 nnode = 3;  nsur = nsur+1; ntri = ntri+1
-            case(9)  ! triangle o2
-                nnode = 6;  nsur = nsur+1; ntri = ntri+1
-            case(3)  ! quadrilateral o1
+            case(3)
                 nnode = 4;  nsur = nsur+1; nqua = nqua+1
-            case(10) ! quadrilateral o2
-                nnode = 9;  nsur = nsur+1; nqua = nqua+1
-            case(4)  ! tetrahedron o1
+            case(4)
                 nnode = 4;  nvol = nvol+1; ntet = ntet+1
-            case(11) ! tetrahedron o2
-                nnode = 10; nvol = nvol+1; ntet = ntet+1
-            case(5)  ! hexahedron o1
+            case(5)
                 nnode = 8;  nvol = nvol+1; nhex = nhex+1
-            case(12) ! hexahedron o2
-                nnode = 27; nvol = nvol+1; nhex = nhex+1
-            case(6)  ! prism o1
+            case(6)
                 nnode = 6;  nvol = nvol+1; npri = npri+1
-            case(13) ! prism o2
-                nnode = 18; nvol = nvol+1; npri = npri+1
-            case(16,17,18)
-                write(*,*) 'ERROR: Does not support incomplete mesh, element type = ', etype; stop
             case default
                 write(*,*) 'ERROR: Unsupported Gmsh element type = ', etype; stop
             end select
@@ -154,8 +141,8 @@ subroutine read_msh()
 
 
 
-    allocate(sur_con(9,nsur_tot),sur_nv(nsur_tot),sur_id(nsur_tot))
-    allocate(vol_con(27,nvol),vol_nv(nvol),vol_id(nvol))
+    allocate(sur_con(4,nsur_tot),sur_nv(nsur_tot),sur_id(nsur_tot))
+    allocate(vol_con(8,nvol),vol_nv(nvol),vol_id(nvol))
     sur_con = 0; sur_nv = 0; sur_id = 0;
     vol_con = 0; vol_nv = 0; vol_id = 0;
 
