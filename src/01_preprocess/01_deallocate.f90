@@ -8,12 +8,15 @@
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     if(allocated(sur_con)) deallocate(sur_con)
+    if(allocated(sur_key)) deallocate(sur_key)
     if(allocated(sur_id)) deallocate(sur_id)
     if(allocated(vol_con)) deallocate(vol_con)
     if(allocated(vol_id)) deallocate(vol_id)
     if(allocated(x_ver)) deallocate(x_ver)
 
     if(allocated(con_sur_vol)) deallocate(con_sur_vol)
+    if(allocated(con_vol_sur)) deallocate(con_vol_sur)
+    if(allocated(con_sur_local)) deallocate(con_sur_local)
     if(allocated(vol_nv)) deallocate(vol_nv)
     if(allocated(sur_nv)) deallocate(sur_nv)
     if(allocated(vol)) deallocate(vol)
